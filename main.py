@@ -31,7 +31,6 @@ class bot(object):
 
             if text.find(':End of message of the day.') != -1:
                 self.s.send('PRIVMSG nickserv :IDENTIFY {}\n'.format(password))
-
                 time.sleep(5)  # Give time for server to authenticate
                 self.s.send('JOIN {}\n'.format(self.channel))
                 break
@@ -135,10 +134,8 @@ class bot(object):
     def modque(self, text_stream):
         ''' Fetches the count for moderation queue '''
 
-        self.s.send('PRIVMSG {} :{}\n'.format(self.channel, '(One moment...)'))
-
-        # This will allow us to ping the user that asked for info
         ping_name = re.findall(r':(.*)!', text_stream)
+        self.s.send('PRIVMSG {} :{}\n'.format(self.channel, '(One moment...)'))
 
         count = 0
         for item in self.subreddit.get_mod_queue(limit=None):
@@ -151,8 +148,6 @@ class bot(object):
         ''' Fetches the count for unmoderated '''
 
         self.s.send('PRIVMSG {} :{}\n'.format(self.channel, '(One moment...)'))
-
-        # This will allow us to ping the user that asked for info
         ping_name = re.findall(r':(.*)!', text_stream)
 
         count = 0
