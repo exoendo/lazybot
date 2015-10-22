@@ -14,7 +14,7 @@ This bot needs to connect to a Reddit account that has mod access to a sub. Idea
 
 * Run setup.py from the command line, and input both the APP Key and the APP Secret you got from step 1 when prompted. This will give you your access token and refresh token.
 
-* Now just open setting.py and fill in the requeistte details
+* Now just open settings.py and fill in the requeistte details
 
 * Run main.py and you are good to go.
 
