@@ -6,9 +6,6 @@ agent = 'getting refresh tokens for a script'
 r = praw.Reddit(user_agent=agent)
 scopes = ['read', 'modlog', 'privatemessages', 'submit']
 
-path = sys.argv[0][:-8]
-full = path + 'settings.py'
-
 print '\n\n'
 
 app_key = str(raw_input('Enter your APP Key: '))
