@@ -55,6 +55,55 @@ class bot(object):
 
         self.subreddit = self.r.get_subreddit(sub)
 
+    def actions(self, text_stream):
+        ''' Fetches relevant modlog actions made on a link in last 25 hours '''
+
+        self.s.send('PRIVMSG {} :{}\n'.format(self.channel, '(One moment...)'))
+        ping_name = re.findall(r':(.*)!', text_stream)
+
+        link = text_stream.split(':~actions')[1]
+
+        if re.search(r'/comments/\w+/', link):
+            link_id = link.split('comments/')[1][:6]
+        elif re.search(r'redd\.it/\w+', link):
+            link_id = link.split('.it/')[1][:6]
+        else:
+            msg = 'You provided an invalid link...'
+            self.s.send('PRIVMSG {} :({}) {}\n'.format(
+                        self.channel, ping_name[0], msg))
+            return
+
+        now = time.time()
+        msg = ('Actions over last 25 hours '
+               '(earliest first): ')
+        action_list = []
+        for item in self.subreddit.get_mod_log(limit=None):
+            time_diff = now - item.created_utc
+
+            if time_diff / 3600 > 25:
+                break
+            if item.target_fullname is None:
+                continue
+            if item.target_fullname[3:] == link_id:
+                if item.action != 'removelink' and item.action != 'approvelink':
+                    continue
+                mod_name = u'{}\u200B{}'.format(item.mod[0], item.mod[1:])
+                mod_name = mod_name.encode('utf-8', 'ignore')
+                entry = '\x02{}: \x0F{} | '.format(mod_name, item.action)
+                action_list.append(entry)
+
+        if len(action_list) > 0:
+            action_list.reverse()
+            for item in action_list:
+                msg += item
+            self.s.send('PRIVMSG {} :({}) {}\n'.format(
+                        self.channel, ping_name[0], msg))
+        else:
+            msg = ('No actions have been performed on this '
+                   'submission in the last 25 hours (or at all...)')
+            self.s.send('PRIVMSG {} :({}) {}\n'.format(
+                        self.channel, ping_name[0], msg))
+
     def modlog(self, hours):
         ''' Gets Moderator Log actions for the last 1-168 hours '''
 
@@ -181,6 +230,10 @@ class bot(object):
 
             elif text.find(':~modmail') != -1:
                 self.modmail(text)
+
+            elif text.find(':~actions') != -1:
+                self.actions(text)
+
             else:
                 pass
 
